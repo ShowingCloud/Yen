@@ -1,0 +1,66 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider        = "prisma-client-js"
+  output          = "../src/generated/client"
+  previewFeatures = []
+}
+
+model Product {
+  id                String   @id @default(uuid())
+  organizationId    String   // Logical Link (just a string, NO @relation)
+  name              String
+  description       String?  @db.Text
+  price             Decimal? @db.Decimal(10, 2)
+  externalId        String?  // For syncing with external systems (e.g., Medusa)
+  extendedAttributes Json?   // AI-generated tags, SEO descriptions, etc.
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Relations within the same package
+  orderItems OrderItem[]
+
+  @@map("commerce_products")
+  @@index([organizationId])
+  @@index([externalId])
+}
+
+model Order {
+  id             String    @id @default(uuid())
+  organizationId String    // Logical Link (just a string, NO @relation)
+  customerId     String?   // Logical Link (just a string, NO @relation)
+  status         String    @default("pending") // pending, processing, completed, cancelled
+  total          Decimal   @db.Decimal(10, 2)
+  metadata       Json?     // Additional order data
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  // Relations within the same package
+  items OrderItem[]
+
+  @@map("commerce_orders")
+  @@index([organizationId])
+  @@index([customerId])
+  @@index([status])
+}
+
+model OrderItem {
+  id        String   @id @default(uuid())
+  orderId   String
+  productId String
+  quantity  Int      @default(1)
+  price     Decimal  @db.Decimal(10, 2) // Price at time of order
+  createdAt DateTime @default(now())
+
+  // Relations within the same package
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("commerce_order_items")
+  @@index([orderId])
+  @@index([productId])
+}
+
