@@ -1,35 +1,21 @@
 {
-  "name": "@algedi/commerce-core",
+  "name": "@repo/commerce",
   "version": "0.1.0",
-  "description": "Headless commerce API (MedusaJS) for Algedi Multi-Tenant E-Commerce Platform",
-  "author": "WANG Guoqin",
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/algedi/commerce-core.git"
-  },
   "private": true,
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
   "scripts": {
-    "dev": "medusa develop",
-    "build": "medusa build",
-    "start": "medusa start",
-    "seed": "medusa db:seed",
-    "migrate": "medusa migrations run",
-    "type-check": "tsc --noEmit"
+    "lint": "eslint . --max-warnings 0",
+    "build": "tsc && prisma generate",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev"
   },
   "dependencies": {
-    "@medusajs/medusa": "^1.20.0",
-    "express": "^4.18.2",
-    "medusa-interfaces": "^1.3.7",
-    "typeorm": "^0.3.17",
-    "pg": "^8.11.3",
-    "zod": "^3.22.4"
+    "@prisma/client": "^5.19.0"
   },
   "devDependencies": {
-    "@types/express": "^4.17.21",
-    "@types/node": "^20.11.5",
-    "@types/pg": "^8.10.9",
-    "typescript": "^5.3.3"
+    "prisma": "^5.19.0",
+    "typescript": "^5.3.0"
   }
 }
 
