@@ -2,6 +2,8 @@
   "name": "@repo/commerce",
   "version": "0.1.0",
   "private": true,
+  "description": "Standalone Commerce Engine - Products, Orders, Customers, and Cart",
+  "license": "MIT",
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "scripts": {
