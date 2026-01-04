@@ -1,6 +1,13 @@
 {
   "name": "@algedi/commerce-core",
   "version": "0.1.0",
+  "description": "Headless commerce API (MedusaJS) for Algedi Multi-Tenant E-Commerce Platform",
+  "author": "WANG Guoqin",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/algedi/commerce-core.git"
+  },
   "private": true,
   "scripts": {
     "dev": "medusa develop",
