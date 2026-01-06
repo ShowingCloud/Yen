@@ -14,18 +14,40 @@ model Product {
   organizationId    String   // Logical Link (just a string, NO @relation)
   name              String
   description       String?  @db.Text
-  price             Decimal? @db.Decimal(10, 2)
+  price             Decimal? @db.Decimal(10, 2) // Base price
   externalId        String?  // For syncing with external systems (e.g., Medusa)
   extendedAttributes Json?   // AI-generated tags, SEO descriptions, etc.
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 
   // Relations within the same package
+  variants  Variant[]
   orderItems OrderItem[]
 
   @@map("commerce_products")
   @@index([organizationId])
   @@index([externalId])
+}
+
+model Variant {
+  id          String   @id @default(uuid())
+  productId   String
+  organizationId String // Logical Link (just a string, NO @relation)
+  sku         String?
+  name        String?  // e.g., "Small", "Red", "Blue"
+  price       Decimal? @db.Decimal(10, 2) // Variant-specific price (overrides product price)
+  inventory   Int?     // Stock quantity
+  attributes  Json?     // e.g., {"size": "M", "color": "red"}
+  createdAt   DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  // Relations within the same package
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("commerce_variants")
+  @@index([productId])
+  @@index([organizationId])
+  @@index([sku])
 }
 
 model Order {

@@ -1,6 +1,9 @@
 // Main entry point - exports all public APIs
 // Note: Commerce is headless (no components), only services and actions
 
+// Export database client
+export { prisma } from './db';
+
 // Export services
 export * from './services';
 

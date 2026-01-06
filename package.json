@@ -17,7 +17,8 @@
     "lint": "eslint . --max-warnings 0",
     "build": "tsc && prisma generate",
     "prisma:generate": "prisma generate",
-    "prisma:migrate": "prisma migrate dev"
+    "prisma:migrate": "prisma migrate dev",
+    "seed": "tsx scripts/seed.ts"
   },
   "dependencies": {
     "@prisma/client": "^5.19.0",
@@ -26,7 +27,8 @@
   },
   "devDependencies": {
     "prisma": "^5.19.0",
-    "typescript": "^5.3.0"
+    "typescript": "^5.3.0",
+    "tsx": "^4.7.0"
   },
   "peerDependencies": {
     "next": "^15.0.0"

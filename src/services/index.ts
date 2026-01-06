@@ -1,4 +1,4 @@
 // Services will be exported here
-export {};
+export * from './product-service';
 
 
