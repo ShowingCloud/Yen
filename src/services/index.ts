@@ -1,4 +1,2 @@
-// Services will be exported here
-export * from './product-service';
-
-
+// Export all services
+export * from './billing-service';

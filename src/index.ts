@@ -5,6 +5,7 @@
 export { prisma } from './db';
 
 // Export services
+export * from './services/product-service';
 export * from './services';
 
 // Export server actions (for direct import)

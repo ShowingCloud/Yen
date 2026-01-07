@@ -1,4 +1,4 @@
-import { prisma } from '../server/db';
+import { prisma } from '../db';
 
 /**
  * Check if a tenant has sufficient credits
@@ -33,14 +33,17 @@ export async function checkCredits(
 
 /**
  * Deduct credits from a tenant's balance
+ * Also records usage for billing
  * @param tenantId - The organization/tenant ID
  * @param amount - Number of credits to deduct
+ * @param eventType - Type of usage event (default: "ai_generation")
  * @returns Updated credits balance
  * @throws Error if tenant not found or insufficient credits
  */
 export async function deductCredits(
   tenantId: string,
-  amount: number = 1
+  amount: number = 1,
+  eventType: string = 'ai_generation'
 ): Promise<number> {
   const tenant = await prisma.tenant.findUnique({
     where: { organizationId: tenantId },
@@ -62,6 +65,12 @@ export async function deductCredits(
       },
     },
     select: { creditsBalance: true },
+  });
+
+  // Record usage for billing (async, don't block)
+  recordUsage(tenantId, eventType, amount).catch((error) => {
+    console.error('Error recording usage:', error);
+    // Don't fail the credit deduction if usage recording fails
   });
 
   return updated.creditsBalance;

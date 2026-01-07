@@ -91,11 +91,77 @@ model Tenant {
   organizationId String  @unique // Maps to tenantId/organizationId used across packages
   creditsBalance Int      @default(0) // Credits available for AI generation and other usage-based features
   metadata      Json?     // Additional tenant metadata
+  
+  // Stripe Connect fields
+  stripeAccountId String? @unique // Stripe Connect account ID
+  stripeCustomerId String? @unique // Stripe Customer ID
+  stripeSubscriptionId String? // Active subscription ID
+  billingStatus String @default("active") // active, past_due, canceled, trialing
+  
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
+  // Relations within the same package
+  billingCycles BillingCycle[]
+  usageRecords  UsageRecord[]
+
   @@map("commerce_tenants")
   @@index([organizationId])
+  @@index([stripeAccountId])
+  @@index([stripeCustomerId])
+}
+
+model BillingCycle {
+  id            String   @id @default(uuid())
+  organizationId String  // Logical Link to Tenant
+  tenantId      String   // Foreign key to Tenant
+  stripeSubscriptionId String? // Stripe subscription ID
+  startDate     DateTime
+  endDate       DateTime?
+  status        String   @default("active") // active, completed, canceled
+  totalUsage    Int      @default(0) // Total usage units in this cycle
+  totalAmount   Decimal? @db.Decimal(10, 2) // Total billed amount
+  metadata      Json?    // Additional billing metadata
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations within the same package
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  usageRecords UsageRecord[]
+
+  @@map("commerce_billing_cycles")
+  @@index([organizationId])
+  @@index([tenantId])
+  @@index([stripeSubscriptionId])
+  @@index([startDate])
+}
+
+model UsageRecord {
+  id            String   @id @default(uuid())
+  organizationId String  // Logical Link to Tenant
+  tenantId      String   // Foreign key to Tenant
+  billingCycleId String? // Optional: link to billing cycle
+  eventType     String   // e.g., "ai_generation", "image_description", "embedding"
+  quantity      Int      @default(1) // Number of units consumed
+  unitPrice     Decimal? @db.Decimal(10, 2) // Price per unit
+  totalAmount   Decimal? @db.Decimal(10, 2) // Total amount for this record
+  stripeUsageRecordId String? // Stripe UsageRecord ID (for metered billing)
+  metadata      Json?    // Additional usage metadata (e.g., model used, tokens)
+  recordedAt    DateTime @default(now()) // When the usage occurred
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations within the same package
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  billingCycle BillingCycle? @relation(fields: [billingCycleId], references: [id], onDelete: SetNull)
+
+  @@map("commerce_usage_records")
+  @@index([organizationId])
+  @@index([tenantId])
+  @@index([billingCycleId])
+  @@index([eventType])
+  @@index([recordedAt])
+  @@index([stripeUsageRecordId])
 }
 
 
